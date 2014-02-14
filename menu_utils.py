@@ -81,9 +81,18 @@ def get_most_recent_menu(cafe):
   return { 'header': "\n".join(header_lines), 'sections' : sections }
 
 def section_header_probability(line, prev_line, next_line):
-  common_sections_regexes = sets.Set([u'entr[ée]es?', 'soup?s', u'veg[^ ]* entr[ée]es?', 'starch(es)?', 'dessert(s)?', 'smoothie?s', 'pastr(y|ie)', 'specials', 'healthy options?', 'asian line', 'salads?', 'sides'])
+  common_sections_regexes = sets.Set([u'entr[ée]es?', 'soup?s', u'veg[^ ]* entr[ée]es?', 'starch(es)?', 'dessert(s)?', 'smoothie?s', 'pastr(y|ie)', 'specials', 'healthy options?', 'asian line', 'salads?', 'sides', 'treat yo', 'juice badger'])
 
   if line.strip() == '':
+    return 0
+ 
+  # This should factor into the below algo but these are always actual
+  # items since they signify healthy/unhealthy
+  starts_with_stars = re.search('^[ ]*\*', line) != None
+  if starts_with_stars:
+    return 0
+
+  if line.replace('-', '').replace('~', '').strip().lower() == 'enjoy':
     return 0
 
   has_common_name = False 
@@ -95,10 +104,11 @@ def section_header_probability(line, prev_line, next_line):
   prev_line_blank = prev_line != None and prev_line.strip() == ''
   next_line_not_blank = next_line != None and next_line.strip() != ''
   ends_in_colon = re.search(':$', line) != None
-  surrounded_by_tildes = re.search('^[ ]*~[^~]+~[ ]*$', line) != None
+  starts_with_tildes = re.search('^[ ]*~', line) != None
   short_line = len(line) < 15
+  all_caps = line.upper() == line
 
-  features = [(.75, has_common_name), (.8, prev_line_blank), (.9, next_line_not_blank), (.15, ends_in_colon), (.4, surrounded_by_tildes), (.25, short_line)]
+  features = [(.75, has_common_name), (.8, prev_line_blank), (.25, next_line_not_blank), (.15, ends_in_colon), (.4, starts_with_tildes), (.25, short_line), (.1, all_caps)]
 
   feature_sum = 0
   total = 0
