@@ -16,7 +16,12 @@ def is_menu(post):
   if not 'message' in post:
     return False
   text = post['message'].lower()
-  return 'dinner' in text or 'lunch' in text or 'breakfast' in text or 'happy hour' in text
+  easy = 'dinner' in text or 'lunch' in text or 'breakfast' in text or 'happy hour' in text
+  if easy:
+    return True
+
+  # This bit us, hard. https://www.facebook.com/FBNYCCafe/posts/716949518339941
+  return get_sections(post['message']) > 3
 
 def is_cafe_ltd(post):
   m = re.search('L[^a-z]?T[^a-z]?D', post['message'], re.IGNORECASE);
