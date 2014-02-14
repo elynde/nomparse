@@ -36,6 +36,9 @@ def get_most_recent_menu_raw(cafe):
   elif cafe == 'ltd':
     posts = get_raw_post_data_for_page('FacebookCulinaryTeam')
     f = lambda p: is_menu(p) and is_cafe_ltd(p)
+  elif cafe == 'seattle':
+    f = is_menu
+    posts = get_raw_post_data_for_page('fbseattlecafe')
 
   for p in posts:
     if f(p):
@@ -68,7 +71,7 @@ def get_most_recent_menu(cafe):
       if curr_section:
         curr_section['items'].append(line.replace('*', '').strip())
       else:
-        header_lines.append(line)
+        header_lines.append(line.replace('~', '').strip())
 
   return { 'header': "\n".join(header_lines), 'sections' : sections }
 
